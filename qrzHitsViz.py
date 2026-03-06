@@ -49,78 +49,79 @@ def load_and_process_data(filepath):
 
     return df, utc_name, local_name
 
-def plot_raw_values(df, utc_name, local_name, figsize=(14, 12)):
-    """Plot raw values over time in linear scale for both UTC and local time"""
-    fig, axes = plt.subplots(2, 1, figsize=figsize)
+def plot_raw_values(df, utc_name, figsize=(14, 6)):
+    """Plot raw values over time in linear scale (UTC only)"""
+    fig, ax = plt.subplots(1, 1, figsize=figsize)
 
-    # UTC plot
-    ax1 = axes[0]
-    ax1.plot(df['Time_UTC'], df['Hits'], marker='o', linewidth=2, markersize=4, color='steelblue')
-    ax1.set_xlabel(f'Date/Time ({utc_name})', fontsize=12)
-    ax1.set_ylabel('Hits', fontsize=12)
-    ax1.set_title(f'Raw Values Over Time - {utc_name}', fontsize=14, fontweight='bold')
-    ax1.grid(True, alpha=0.3)
-    ax1.xaxis.set_major_formatter(DateFormatter('%m/%d %H:%M'))
-    plt.setp(ax1.xaxis.get_majorticklabels(), rotation=45, ha='right')
-    ax1.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: f'{int(x):,}'))
+    ax.plot(df['Time_UTC'], df['Hits'], marker='o', linewidth=2, markersize=4, color='steelblue')
+    ax.set_xlabel(f'Date/Time ({utc_name})', fontsize=12)
+    ax.set_ylabel('Hits', fontsize=12)
+    ax.set_title(f'Raw Values Over Time - {utc_name}', fontsize=14, fontweight='bold')
+    ax.grid(True, alpha=0.3)
+    ax.xaxis.set_major_formatter(DateFormatter('%m/%d %H:%M'))
+    plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha='right')
+    ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: f'{int(x):,}'))
 
-    # Add value annotations for small datasets
     if len(df) <= 30:
         for idx, row in df.iterrows():
-            ax1.annotate(f'{row["Hits"]:,}',
+            ax.annotate(f'{row["Hits"]:,}',
                         xy=(row['Time_UTC'], row['Hits']),
-                        xytext=(5, 5), textcoords='offset points',
-                        fontsize=8, alpha=0.7)
-
-    # Local time plot
-    ax2 = axes[1]
-    ax2.plot(df['Time_Local'], df['Hits'], marker='o', linewidth=2, markersize=4, color='darkgreen')
-    ax2.set_xlabel(f'Date/Time ({local_name})', fontsize=12)
-    ax2.set_ylabel('Hits', fontsize=12)
-    ax2.set_title(f'Raw Values Over Time - {local_name}', fontsize=14, fontweight='bold')
-    ax2.grid(True, alpha=0.3)
-    ax2.xaxis.set_major_formatter(DateFormatter('%m/%d %H:%M'))
-    plt.setp(ax2.xaxis.get_majorticklabels(), rotation=45, ha='right')
-    ax2.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: f'{int(x):,}'))
-
-    # Add value annotations for small datasets
-    if len(df) <= 30:
-        for idx, row in df.iterrows():
-            ax2.annotate(f'{row["Hits"]:,}',
-                        xy=(row['Time_Local'], row['Hits']),
                         xytext=(5, 5), textcoords='offset points',
                         fontsize=8, alpha=0.7)
 
     plt.tight_layout()
     return fig
 
-def plot_raw_values_log(df, utc_name, local_name, figsize=(14, 12)):
-    """Plot raw values over time in logarithmic scale for both UTC and local time"""
+
+def plot_recent_raw_values(df, utc_name, local_name, days=30, figsize=(14, 12)):
+    """Plot the last N days of raw values in linear scale for both UTC and local time"""
+    cutoff = df['Time_UTC'].max() - pd.Timedelta(days=days)
+    df_recent = df[df['Time_UTC'] >= cutoff]
+
     fig, axes = plt.subplots(2, 1, figsize=figsize)
 
-    # UTC plot
-    ax1 = axes[0]
-    ax1.plot(df['Time_UTC'], df['Hits'], marker='o', linewidth=2, markersize=4, color='steelblue')
-    ax1.set_yscale('log')
-    ax1.set_xlabel(f'Date/Time ({utc_name})', fontsize=12)
-    ax1.set_ylabel('Hits (Log Scale)', fontsize=12)
-    ax1.set_title(f'Raw Values Over Time (Log Scale) - {utc_name}', fontsize=14, fontweight='bold')
-    ax1.grid(True, which="both", ls="-", alpha=0.3)
-    ax1.xaxis.set_major_formatter(DateFormatter('%m/%d %H:%M'))
-    plt.setp(ax1.xaxis.get_majorticklabels(), rotation=45, ha='right')
-    ax1.yaxis.set_major_formatter(ticker.ScalarFormatter()) # Use default log formatter
+    for ax, time_col, color, label in [
+        (axes[0], 'Time_UTC',   'steelblue',  utc_name),
+        (axes[1], 'Time_Local', 'darkgreen',  local_name),
+    ]:
+        ax.plot(df_recent[time_col], df_recent['Hits'], marker='o', linewidth=2, markersize=4, color=color)
+        ax.set_xlabel(f'Date/Time ({label})', fontsize=12)
+        ax.set_ylabel('Hits', fontsize=12)
+        ax.set_title(f'Raw Values — Last {days} Days ({label})', fontsize=14, fontweight='bold')
+        ax.grid(True, alpha=0.3)
+        ax.xaxis.set_major_formatter(DateFormatter('%m/%d %H:%M'))
+        plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha='right')
+        ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: f'{int(x):,}'))
 
-    # Local time plot
-    ax2 = axes[1]
-    ax2.plot(df['Time_Local'], df['Hits'], marker='o', linewidth=2, markersize=4, color='darkgreen')
-    ax2.set_yscale('log')
-    ax2.set_xlabel(f'Date/Time ({local_name})', fontsize=12)
-    ax2.set_ylabel('Hits (Log Scale)', fontsize=12)
-    ax2.set_title(f'Raw Values Over Time (Log Scale) - {local_name}', fontsize=14, fontweight='bold')
-    ax2.grid(True, which="both", ls="-", alpha=0.3)
-    ax2.xaxis.set_major_formatter(DateFormatter('%m/%d %H:%M'))
-    plt.setp(ax2.xaxis.get_majorticklabels(), rotation=45, ha='right')
-    ax2.yaxis.set_major_formatter(ticker.ScalarFormatter()) # Use default log formatter
+    plt.tight_layout()
+    return fig
+
+def plot_raw_values_log(df, utc_name, figsize=(14, 6)):
+    """Plot raw values over time in logarithmic scale (UTC only)"""
+    fig, ax = plt.subplots(1, 1, figsize=figsize)
+
+    y_min_exp = int(np.floor(np.log10(df['Hits'].min())))
+    y_max_exp = int(np.ceil(np.log10(df['Hits'].max())))
+    y_min = 10 ** y_min_exp
+    y_max = 10 ** y_max_exp
+    major_ticks = [10**i for i in range(y_min_exp, y_max_exp + 1)]
+    minor_ticks = [m * 10**i for i in range(y_min_exp, y_max_exp) for m in range(2, 10)]
+
+    ax.plot(df['Time_UTC'], df['Hits'], marker='o', linewidth=2, markersize=4, color='steelblue')
+    ax.set_yscale('log')
+    ax.set_ylim(y_min, y_max)
+    ax.set_xlabel(f'Date/Time ({utc_name})', fontsize=12)
+    ax.set_ylabel('Hits (Log Scale)', fontsize=12)
+    ax.set_title(f'Raw Values Over Time (Log Scale) - {utc_name}', fontsize=14, fontweight='bold')
+    ax.grid(True, which="major", ls="-", alpha=0.5)
+    ax.grid(True, which="minor", ls="-", color="#888888", alpha=0.6)
+    ax.xaxis.set_major_formatter(DateFormatter('%m/%d %H:%M'))
+    plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha='right')
+    ax.set_yticks(major_ticks)
+    ax.set_yticklabels([f'$10^{{{int(np.log10(t))}}}$' for t in major_ticks])
+    ax.set_yticks(minor_ticks, minor=True)
+    ax.set_yticklabels([f'{t:,}' for t in minor_ticks], minor=True)
+    ax.tick_params(axis='y', which='minor', labelsize=11, labelcolor='#222222')
 
     plt.tight_layout()
     return fig
@@ -322,19 +323,26 @@ def main(csv_filepath, output_dir):
     # Create visualizations
     print("Creating visualizations...")
 
-    # Plot 1: Raw values over time
-    fig1 = plot_raw_values(df, utc_name, local_name)
+    # Plot 1: Raw values over time (UTC, linear)
+    fig1 = plot_raw_values(df, utc_name)
     save_path1 = os.path.join(output_dir, 'raw_values_plot.png')
     plt.savefig(save_path1, dpi=300, bbox_inches='tight')
-    plt.close(fig1) # Close figure to prevent display
+    plt.close(fig1)
     print(f"Saved: {save_path1}")
 
-    # Plot 2: Raw values with log scale
-    fig2 = plot_raw_values_log(df, utc_name, local_name)
+    # Plot 2: Raw values with log scale (UTC only)
+    fig2 = plot_raw_values_log(df, utc_name)
     save_path2 = os.path.join(output_dir, 'raw_values_log_plot.png')
     plt.savefig(save_path2, dpi=300, bbox_inches='tight')
-    plt.close(fig2) # Close figure
+    plt.close(fig2)
     print(f"Saved: {save_path2}")
+
+    # Plot 3: Recent raw values (last 30 days, UTC + local)
+    fig3a = plot_recent_raw_values(df, utc_name, local_name)
+    save_path3a = os.path.join(output_dir, 'recent_raw_values_plot.png')
+    plt.savefig(save_path3a, dpi=300, bbox_inches='tight')
+    plt.close(fig3a)
+    print(f"Saved: {save_path3a}")
 
     # Plot 3: Hourly rate analysis
     fig3 = plot_hourly_rate_analysis(df, utc_name, local_name)
