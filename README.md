@@ -1,6 +1,6 @@
 # QRZ Lookup Tracker
 
-Tracks the cumulative lookup count on a QRZ callsign page over time and generates visualizations.
+Tracks the cumulative lookup count on a QRZ callsign page over time and generates visualizations by Evan, NR8E.
 
 ## How it works
 
@@ -57,3 +57,7 @@ When the session expires, the script will:
 3. Create `.session_invalid` to halt further fetches
 
 To resume: update `QRZ_SESSION_TOKEN` in `.secrets`, then delete `.session_invalid`.
+
+## Thanks
+
+Special thanks to Todd, KE2AEQ for helping out with the original shell script!
