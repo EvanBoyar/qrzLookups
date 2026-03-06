@@ -4,7 +4,7 @@ Tracks the cumulative lookup count on a QRZ callsign page over time and generate
 
 ## How it works
 
-`qrzLookupTracker.sh` runs hourly via cron. It authenticates to QRZ using a session cookie, verifies the session is valid (to avoid inflating the count with unauthenticated visits), records the current lookup count to a CSV, then regenerates all plots via `qrzHitsViz.py`.
+`qrzLookupTracker.sh` runs hourly (or as often as you'd like) via cron. It authenticates to QRZ using a session cookie, verifies the session is valid (to avoid inflating the count with unauthenticated visits), records the current lookup count to a CSV, then regenerates all plots via `qrzHitsViz.py`.
 
 If the session expires, a `.session_invalid` sentinel is created and all further fetches are halted until the token is refreshed.
 
