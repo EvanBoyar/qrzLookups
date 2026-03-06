@@ -3,7 +3,6 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SECRETS_FILE="$SCRIPT_DIR/.secrets"
 SENTINEL_FILE="$SCRIPT_DIR/.session_invalid"
-CSV_FILE="$SCRIPT_DIR/NR8E_QRZ_stats.csv"
 LOG_FILE="$SCRIPT_DIR/qrzTracker.log"
 
 log_msg() {
@@ -47,21 +46,25 @@ if [ -z "${QRZ_CALLSIGN:-}" ]; then
     exit 1
 fi
 
+CSV_FILE="$SCRIPT_DIR/${QRZ_CALLSIGN}_QRZ_stats.csv"
+
 # Fetch QRZ page
 RESPONSE=$(curl --silent \
     "https://www.qrz.com/db/${QRZ_CALLSIGN}" \
     -H "Cookie: xf_session=${QRZ_SESSION_TOKEN}" \
     -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:141.0) Gecko/20100101 Firefox/141.0")
 
-# Extract lookup count
-COUNT=$(echo "$RESPONSE" | grep -oP '(?<=Lookups: )[\d,]+' | tr -d ',')
-
-if [ -z "$COUNT" ]; then
-    log_msg "ERROR" "Failed to extract Lookups count — session may be expired"
+# Verify session is authenticated — QRZ sets cs_mycs to the callsign when logged in,
+# empty string when not. An unauthenticated page view inflates the lookup count.
+if echo "$RESPONSE" | grep -q 'var cs_mycs = "";'; then
+    log_msg "ERROR" "Session not authenticated — would inflate lookup count. Halting."
     touch "$SENTINEL_FILE"
     notify "QRZ session expired — update .secrets and delete .session_invalid"
     exit 1
 fi
+
+# Extract lookup count
+COUNT=$(echo "$RESPONSE" | grep -oP '(?<=Lookups: )[\d,]+' | tr -d ',')
 
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 echo "${TIMESTAMP},${COUNT}" >> "$CSV_FILE"
