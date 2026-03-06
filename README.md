@@ -17,12 +17,14 @@ If the session expires, a `.session_invalid` sentinel is created and all further
    ```
    The session token is the value of the `xf_session` cookie from a logged-in QRZ browser session.
 
-2. Make the script executable:
+   To get that, go to [QRZ](https://www.qrz.com) and make sure you're logged in. Then, use your browser's web developer tools to view your storage for the page. Under that, there's probably a "cookies" section. Open the qrz.com one, and you'll see something that says "xf_session". There ya go! Copy that and use it as explained above.
+
+3. Make the script executable:
    ```
    chmod +x qrzLookupTracker.sh
    ```
 
-3. Add a cron entry:
+4. Add a cron entry:
    ```
    0 */1 * * * /path/to/qrzLookups/qrzLookupTracker.sh
    ```
