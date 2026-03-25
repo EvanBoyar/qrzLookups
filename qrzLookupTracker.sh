@@ -70,4 +70,4 @@ TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 echo "${TIMESTAMP},${COUNT}" >> "$CSV_FILE"
 log_msg "INFO" "Recorded: ${COUNT} lookups at ${TIMESTAMP}"
 
-python3 "$SCRIPT_DIR/qrzHitsViz.py"
+"$SCRIPT_DIR/venv/bin/python3" "$SCRIPT_DIR/qrzHitsViz.py"

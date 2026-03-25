@@ -1,5 +1,7 @@
-*.png
+plots/
 *.csv
 .secrets
 .session_invalid
 qrzTracker.log
+venv/
+.*/
