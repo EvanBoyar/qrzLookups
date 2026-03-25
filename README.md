@@ -11,19 +11,20 @@ If the session expires, a `.session_invalid` sentinel is created and all further
 ## Setup
 
 1. Clone the repo and cd into it:
+   Choose where you want the repo to live locally, then open a Terminal instance there.
    ```
    git clone <repo-url>
    cd qrzLookups
    ```
 
-2. Set up a Python virtual environment and install dependencies:
+3. Set up a Python virtual environment and install dependencies:
    ```
    python3 -m venv venv
    source venv/bin/activate
    pip install -r requirements.txt
    ```
 
-3. Copy `.secrets.example` to `.secrets` and fill in your values:
+4. Copy `.secrets.example` to `.secrets` and fill in your values:
    ```
    cp .secrets.example .secrets
    ```
@@ -36,15 +37,21 @@ If the session expires, a `.session_invalid` sentinel is created and all further
 
    To get that, go to [QRZ](https://www.qrz.com) and make sure you're logged in. Then, use your browser's web developer tools to view your storage for the page. Under that, there's probably a "cookies" section. Open the qrz.com one, and you'll see something that says "xf_session". There ya go! Copy that and use it as explained above.
 
-4. Make the script executable:
+5. Make the script executable:
    ```
    chmod +x qrzLookupTracker.sh
    ```
 
-5. Add a cron entry:
+6. Add a cron entry:
+   Open crontab:
+   ```
+   crontab -e
+   ```
+   Add this to the crontab (probably scroll to the bottom and then enter it):
    ```
    0 */1 * * * /path/to/qrzLookups/qrzLookupTracker.sh
    ```
+   Save the crontab (probably ```SHIFT+X```).
 
 ## Files
 
