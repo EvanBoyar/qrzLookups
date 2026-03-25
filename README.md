@@ -42,7 +42,7 @@ If the session expires, a `.session_invalid` sentinel is created and all further
    chmod +x qrzLookupTracker.sh
    ```
 
-6. Add a cron entry:
+6. Add a cron entry:  
    Open crontab:
    ```
    crontab -e
