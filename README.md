@@ -10,7 +10,24 @@ If the session expires, a `.session_invalid` sentinel is created and all further
 
 ## Setup
 
-1. Copy `.secrets.example` to `.secrets` and fill in your values:
+1. Clone the repo and cd into it:
+   ```
+   git clone <repo-url>
+   cd qrzLookups
+   ```
+
+2. Set up a Python virtual environment and install dependencies:
+   ```
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
+3. Copy `.secrets.example` to `.secrets` and fill in your values:
+   ```
+   cp .secrets.example .secrets
+   ```
+   Then edit `.secrets`:
    ```
    QRZ_SESSION_TOKEN=your_xf_session_token_here
    QRZ_CALLSIGN=your_callsign_here
@@ -19,12 +36,12 @@ If the session expires, a `.session_invalid` sentinel is created and all further
 
    To get that, go to [QRZ](https://www.qrz.com) and make sure you're logged in. Then, use your browser's web developer tools to view your storage for the page. Under that, there's probably a "cookies" section. Open the qrz.com one, and you'll see something that says "xf_session". There ya go! Copy that and use it as explained above.
 
-3. Make the script executable:
+4. Make the script executable:
    ```
    chmod +x qrzLookupTracker.sh
    ```
 
-4. Add a cron entry:
+5. Add a cron entry:
    ```
    0 */1 * * * /path/to/qrzLookups/qrzLookupTracker.sh
    ```
@@ -35,12 +52,15 @@ If the session expires, a `.session_invalid` sentinel is created and all further
 |---|---|
 | `qrzLookupTracker.sh` | Main collection script |
 | `qrzHitsViz.py` | Generates all plots from the CSV |
+| `requirements.txt` | Python dependencies |
 | `<CALLSIGN>_QRZ_stats.csv` | Collected data (timestamp, hit count) |
 | `.secrets` | Credentials — **never commit this** |
 | `.secrets.example` | Template for `.secrets` |
 | `qrzTracker.log` | Log of script runs and errors |
 
 ## Plots generated
+
+All plots are saved to the `plots/` directory.
 
 | File | Description |
 |---|---|
@@ -50,6 +70,10 @@ If the session expires, a `.session_invalid` sentinel is created and all further
 | `hourly_rate_analysis.png` | Average lookup rate by hour of day |
 | `daily_activity_heatmap.png` | Activity heatmap by date and hour |
 | `day_of_week_heatmap.png` | Activity heatmap by day of week and hour |
+| `contribution_calendar.png` | GitHub-style calendar of daily hit gains |
+| `polar_clock.png` | 24-hour clock plot of hourly activity |
+| `anomaly_detection.png` | Spike and quiet period detection |
+| `milestone_forecast.png` | Projected dates for future hit milestones |
 
 ## Session expiry
 
